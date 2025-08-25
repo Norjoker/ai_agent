@@ -1,4 +1,5 @@
 MAX_CHARS = 10_000
+WORKING_DIRECTORY = "./calculator"
 
 SYSTEM_PROMT = """
 You are a helpful AI coding agent.
