@@ -1,4 +1,4 @@
-from functions import get_files_info, get_file_content, write_file, run_python
+from functions import get_files_content, get_files_info, write_file, run_python
 
 test1 = run_python.run_python_file("calculator", "main.py")
 test2 = run_python.run_python_file("calculator", "main.py", ["3 + 5"])
