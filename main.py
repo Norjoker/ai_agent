@@ -104,29 +104,39 @@ def main():
     types.Content(role="user", parts=[types.Part(text=user_prompt)]),
     ]
 
-    response = client.models.generate_content(
-    model='gemini-2.0-flash-001',
-    contents=messages,
-    config=types.GenerateContentConfig(tools=[available_functions],
-                                       system_instruction=SYSTEM_PROMT)
-    )
+    i = 1    
+    while i <= 20:
+        response = client.models.generate_content(
+        model='gemini-2.0-flash-001',
+        contents=messages,
+        config=types.GenerateContentConfig(tools=[available_functions],
+                                        system_instruction=SYSTEM_PROMT)
+        )
 
-    function_call_parts = response.function_calls
-    for fn in function_call_parts:
-        #print(f"Calling function: {fn.name}({fn.args})")
-        if args.verbose:
-            function_call_result = call_function(fn, verbose=True)
-        else:
-            function_call_result = call_function(fn)
-        print(f"-> {function_call_result.parts[0].function_response.response}")
+        if not response.function_calls:
+                    print(i)
+                    print(response.text)
+                    return
 
+        '''
+        #print(response.candidates)
+        candidates = response.candidates
+        for candidate in candidates:
+            #print(candidate.content)
+            messages.append(candidate.content)'''
 
-    print(response.text)
+        function_call_parts = response.function_calls
+        for fn in function_call_parts:
+            #print(f"Calling function: {fn.name}({fn.args})")
+            if args.verbose:
+                function_call_result = call_function(fn, verbose=True)
+            else:
+                function_call_result = call_function(fn)
+            print(f"-> {function_call_result.parts[0].function_response.response['result']}")
 
-    #if args.verbose:
-        #print(f"User prompt: {user_prompt}")
-        #print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
-        #print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
+        messages.append(types.Content(role='user', parts=[types.Part(text=function_call_result.parts[0].function_response.response["result"])]))
+        #print(f"Input messages returned: {messages}")
+        i += 1
 
 
 if __name__ == "__main__":
